@@ -63,7 +63,7 @@ export class Sequence {
    * 获取 maxWorkerId
    */
   protected getMaxWorkerId(datacenterId: number, maxWorkerId: number): number {
-    const mpid: string = `${datacenterId}${14664}`
+    const mpid: string = `${datacenterId}${process.pid}`
     /*
      * MAC + PID 的 hashcode 获取16个低位
      */
