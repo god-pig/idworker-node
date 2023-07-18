@@ -1,5 +1,5 @@
 import { IdentifierGenerator } from './identifier-generator'
-import { Sequence } from './sequence'
+import { Sequence, SequenceOptions } from './sequence'
 
 /**
  * 默认生成器
@@ -9,9 +9,9 @@ import { Sequence } from './sequence'
 export class DefaultIdentifierGenerator extends IdentifierGenerator {
   private sequence: Sequence
 
-  constructor() {
+  constructor(options?: SequenceOptions) {
     super()
-    this.sequence = new Sequence()
+    this.sequence = new Sequence(options)
   }
 
   public nextId(_entity?: any): string {

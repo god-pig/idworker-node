@@ -1,6 +1,23 @@
 import * as ip from './util/ip'
 import * as crypto from 'crypto'
 import * as strings from './util/strings'
+import { isNumber } from './util/is-number'
+import assert from 'assert'
+
+export interface SequenceOptions {
+  /**
+   * IP 地址
+   */
+  inetAddress?: string
+  /**
+   * 工作机器 ID
+   */
+  workerId?: number
+  /**
+   * 序列号
+   */
+  datacenterId?: number
+}
 
 /**
  * 分布式高效有序 ID 生产黑科技(sequence)
@@ -33,6 +50,9 @@ export class Sequence {
     this.sequenceBits + this.workerIdBits + this.datacenterIdBits
   private sequenceMask: number = -1 ^ (-1 << this.sequenceBits)
 
+  /**
+   * 工作机器 ID
+   */
   private workerId: number = 0
 
   /**
@@ -53,10 +73,36 @@ export class Sequence {
    */
   private inetAddress?: string = ''
 
-  constructor(inetAddress?: string) {
-    this.inetAddress = inetAddress
-    this.datacenterId = this.getDatacenterId(this.maxDatacenterId)
-    this.workerId = this.getMaxWorkerId(this.datacenterId, this.maxWorkerId)
+  constructor(options?: string | SequenceOptions) {
+    if (options === void 0) {
+      options = {}
+    }
+    if (typeof options == 'string') {
+      options = { inetAddress: options }
+    }
+    this.inetAddress = options?.inetAddress
+    const workerId = options.workerId as number
+    if (isNumber(workerId)) {
+      assert.equal(
+        workerId > this.maxWorkerId || workerId < 0,
+        false,
+        `worker Id can't be greater than ${this.maxWorkerId} or less than 0`
+      )
+      this.workerId = workerId
+    } else {
+      this.workerId = this.getMaxWorkerId(this.datacenterId, this.maxWorkerId)
+    }
+    const datacenterId = options.datacenterId as number
+    if (isNumber(datacenterId)) {
+      assert.equal(
+        datacenterId > this.maxDatacenterId || datacenterId < 0,
+        false,
+        `datacenter Id can't be greater than ${this.maxDatacenterId} or less than 0`
+      )
+      this.datacenterId = datacenterId
+    } else {
+      this.datacenterId = this.getDatacenterId(this.maxDatacenterId)
+    }
   }
 
   /**
